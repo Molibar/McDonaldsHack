@@ -23,7 +23,7 @@ namespace McDonaldsHack.Api.Controllers
                 Password = password,
                 Token = token.ToString()
             };
-            var collection = database.GetCollection<User>(user.GetType().ToString());
+            var collection = database.GetCollection<User>("Users");
             collection.Insert(user);
             return new LoginViewModel { Name = user.Name, Password = user.Password, Token = user.Token };
         }
