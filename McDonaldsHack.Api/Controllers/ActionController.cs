@@ -16,14 +16,13 @@ namespace McDonaldsHack.Api.Controllers
         public LoginViewModel Login(string name, string password)
         {
             var token = Guid.NewGuid();
-            var database = DatabaseRepository.GetDatabase();
             var user = new User
             {
                 Name = name,
                 Password = password,
                 Token = token.ToString()
             };
-            var collection = database.GetCollection<User>("Users");
+            var collection = DatabaseRepository.GetCollection<User>();
             collection.Insert(user);
             return new LoginViewModel { Name = user.Name, Password = user.Password, Token = user.Token };
         }
@@ -32,8 +31,7 @@ namespace McDonaldsHack.Api.Controllers
         [Route("api/User/{token}")]
         public LoginViewModel GetUser(string token)
         {
-            var database = DatabaseRepository.GetDatabase();
-            var collection = database.GetCollection<User>(typeof(User).ToString());
+            var collection = DatabaseRepository.GetCollection<User>();
             var query =
                 from e in collection.AsQueryable()
                 where e.Token == token
@@ -46,14 +44,20 @@ namespace McDonaldsHack.Api.Controllers
 
     public static class DatabaseRepository
     {
-        public static MongoDatabase GetDatabase()
+        private static MongoDatabase GetDatabase()
         {
             var connectionstring = ConfigurationManager.AppSettings.Get("MONGOLAB_URI");
             var url = new MongoUrl(connectionstring);
             var client = new MongoClient(url);
             var server = client.GetServer();
-            var database = server.GetDatabase("McDonaldsHack");
+            var database = server.GetDatabase(url.DatabaseName);
             return database;
+        }
+
+        public static MongoCollection<T> GetCollection<T>()
+        {
+            var database = GetDatabase();
+            return database.GetCollection<T>(typeof(T).FullName);
         }
     }
 

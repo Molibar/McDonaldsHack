@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web.Http.Filters;
+﻿using System.Web.Http.Filters;
 
 namespace McDonaldsHack.Api.Controllers
 {
